@@ -94,7 +94,7 @@ export const storeUserData = async () => {
     console.log("store", error);
   }
 };
-export const getExistingUser = async () => {
+export const getExistingUser = async ($id: string) => {
   try {
     const user = await account.get();
     if (!user) return redirect("/sign-in");
