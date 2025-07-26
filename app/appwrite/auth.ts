@@ -126,6 +126,7 @@ import { ID, OAuthProvider, Query } from "appwrite";
 import { account, database, appwriteConfig } from "~/appwrite/client";
 import { redirect } from "react-router";
 
+
 export const getExistingUser = async (id: string) => {
   try {
     const { documents, total } = await database.listDocuments(
@@ -178,6 +179,8 @@ const getGooglePicture = async (accessToken: string) => {
     if (!response.ok) throw new Error("Failed to fetch Google profile picture");
 
     const { photos } = await response.json();
+ 
+    
     return photos?.[0]?.url || null;
   } catch (error) {
     console.error("Error fetching Google picture:", error);
@@ -223,5 +226,25 @@ export const getUser = async () => {
   } catch (error) {
     console.error("Error fetching user:", error);
     return null;
+  }
+};
+
+export const getAllUsers = async (limit: number, offset: number) => {
+  try {
+    const { documents: users, total } = await database.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.limit(limit), Query.offset(offset)]
+    );
+
+    if (total === 0) {
+      return { users: [], total };
+    }
+
+    return { users, total };
+  } catch (error) {
+    console.log("getAllUsers", error);
+
+    return { users: [], total: 0 };
   }
 };

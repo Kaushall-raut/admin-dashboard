@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "react-router build",
-    "dev": "NODE_OPTIONS='--import ./instrument.server.mjs' react-router dev",
-    "start": "NODE_OPTIONS='--import ./instrument.server.mjs' react-router-serve ./build/server/index.js",
+    "dev": "NODE_OPTIONS='--import ./instrumental.server.mjs' react-router dev",
+    "start": "cross-env NODE_OPTIONS='--import ./instrument.server.mjs' react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
@@ -23,6 +23,7 @@
     "@syncfusion/ej2-react-splitbuttons": "^30.1.39",
     "appwrite": "^18.1.1",
     "clsx": "^2.1.1",
+    "cross-env": "^10.0.0",
     "dayjs": "^1.11.13",
     "isbot": "^5.1.27",
     "react": "^19.1.0",
