@@ -153,6 +153,6 @@ declare interface TripFormData {
   travelStyle: string;
   interest: string;
   budget: string;
-  duration: number;
+  duration: string;
   groupType: string;
 }

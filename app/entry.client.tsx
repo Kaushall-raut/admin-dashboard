@@ -24,8 +24,8 @@ Sentry.init({
 startTransition(() => {
   hydrateRoot(
     document,
-    <StrictMode>
+    // <StrictMode>
       <HydratedRouter />
-    </StrictMode>
+    // </StrictMode>
   );
 });

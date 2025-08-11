@@ -1,12 +1,23 @@
 import { ComboBoxComponent } from "@syncfusion/ej2-react-dropdowns";
 import { Header } from "components";
 import type { Route } from "./+types/create-trips";
-import { comboBoxItems, selectItems } from "~/constants";
+import {
+  comboBoxItems,
+  interests,
+  selectItems,
+  travelStyles,
+} from "~/constants";
 import { cn, formatKey } from "~/lib/utils";
 import { useState } from "react";
-import { LayerDirective, MapsComponent } from "@syncfusion/ej2-react-maps";
+import {
+  LayerDirective,
+  LayersDirective,
+  MapsComponent,
+} from "@syncfusion/ej2-react-maps";
 import { world_map } from "~/constants/world_map";
 import { ButtonComponent } from "@syncfusion/ej2-react-buttons";
+import { account } from "~/appwrite/client";
+import { useNavigate } from "react-router";
 
 export const loader = async () => {
   const response = await fetch(
@@ -29,13 +40,15 @@ const CreateTrips = ({ loaderData }: Route.ComponentProps) => {
     travelStyle: "",
     interest: "",
     budget: "",
-    duration: 0,
+    duration: "",
     groupType: "",
   });
 
   const [error, setError] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -51,6 +64,49 @@ const CreateTrips = ({ loaderData }: Route.ComponentProps) => {
       setError("Please provide values for all fields");
       setLoading(false);
       return;
+    }
+    // if (formData.duration > 1 || formData.duration < 10) {
+    //   console.log("====================================");
+    //   console.log(formData.duration);
+    //   console.log("====================================");
+    //   setError("Duration must be between 1  and 10");
+    //   setLoading(false);
+    //   return;
+    // }
+
+    const user = await account.get();
+    if (!user.$id) {
+      console.error("User not authenticated");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/create-trip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          country: formData.country,
+          numberOfDays: formData.duration,
+          travelStyle: formData.travelStyle,
+          interests: formData.interest,
+          budget: formData.budget,
+          groupType: formData.groupType,
+          userId: user.$id,
+        }),
+      });
+      const result: CreateTripResponse = await response.json();
+
+      if (result?.id) {
+        navigate(`/trips/${result.id}`);
+        console.log("cehck");
+      } else {
+        console.error("failed to generate");
+      }
+    } catch (error) {
+      console.log("Error generating trip", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -81,7 +137,7 @@ const CreateTrips = ({ loaderData }: Route.ComponentProps) => {
       />
 
       <section className="mt-2.5 wrapper-md">
-        <form action="#" className="trip-form" onSubmit={handleSubmit}>
+        <form className="trip-form" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="country">Country</label>
             <ComboBoxComponent
@@ -119,12 +175,12 @@ const CreateTrips = ({ loaderData }: Route.ComponentProps) => {
               name="duration"
               placeholder="Enter a number of days"
               className="form-input placeholder:text-gray-100"
-              onChange={(e) => handleChange("duration", Number(e.target.value))}
+              onChange={(e) => handleChange("duration", e.target.value)}
             />
           </div>
           {selectItems.map((key) => (
             <div key={key}>
-              <label htmlFor="key">{formatKey(key)}</label>
+              <label htmlFor={key}>{formatKey(key)}</label>
               <ComboBoxComponent
                 id={key}
                 dataSource={comboBoxItems[key].map((item) => ({
@@ -157,7 +213,7 @@ const CreateTrips = ({ loaderData }: Route.ComponentProps) => {
           <div>
             <label htmlFor="location">Location on the world</label>
             <MapsComponent>
-              <LayerDirective>
+              <LayersDirective>
                 <LayerDirective
                   dataSource={mapData}
                   shapeData={world_map}
@@ -165,7 +221,7 @@ const CreateTrips = ({ loaderData }: Route.ComponentProps) => {
                   shapeDataPath="country"
                   shapeSettings={{ colorValuePath: "color", fill: "#E5E5E5" }}
                 />
-              </LayerDirective>
+              </LayersDirective>
             </MapsComponent>
           </div>
           <div className="bg-gray-200 h-px w-full" />
