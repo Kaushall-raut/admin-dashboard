@@ -99,7 +99,7 @@ const CreateTrips = ({ loaderData }: Route.ComponentProps) => {
 
       if (result?.id) {
         navigate(`/trips/${result.id}`);
-        console.log("cehck");
+        // console.log("check");
       } else {
         console.error("failed to generate");
       }
